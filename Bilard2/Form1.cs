@@ -14,9 +14,8 @@ namespace Bilard2
     public partial class Form1 : Form
     {
         int x, y, width, height;
-        Pen grayPen = new Pen(Color.Gray, 20);
-        SolidBrush greenBrush = new SolidBrush(Color.Green);
-        SolidBrush blackBrush = new SolidBrush(Color.Black);
+        
+        SimulationBox sb = new SimulationBox();
 
         public Form1()
         {
@@ -28,6 +27,7 @@ namespace Bilard2
             Pen grayPen = new Pen(Color.Gray, 20);
             SolidBrush greenBrush = new SolidBrush(Color.Green);
             SolidBrush blackBrush = new SolidBrush(Color.Black);
+            SolidBrush whiteBrush = new SolidBrush(Color.White);
             Rectangle table = new Rectangle(35, 35, 625, 325);
 
             Graphics t = CreateGraphics();
@@ -47,6 +47,11 @@ namespace Bilard2
             l5.FillEllipse(blackBrush, 332, 335, 35, 35);
             Graphics l6 = CreateGraphics();
             l6.FillEllipse(blackBrush, 36, 335, 35, 35);
+
+            int x_w = 550, y_w = 190;
+            Ball white = sb.addBall(x_w, y_w, 0, 0);
+            Graphics WhiteBall = CreateGraphics();
+            WhiteBall.FillEllipse(whiteBrush, white.X , white.Y, white.R, white.R);
         }
     }
 }
