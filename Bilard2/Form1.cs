@@ -14,7 +14,7 @@ namespace Bilard2
     public partial class Form1 : Form
     {
         int x, y, width, height;
-        
+
         SimulationBox sb = new SimulationBox();
 
         public Form1()
@@ -147,6 +147,9 @@ namespace Bilard2
             Graphics LightBrownBall = CreateGraphics();
             LightBrownBall.FillEllipse(lightbrownBrush, lightbrown.X, lightbrown.Y, lightbrown.R, lightbrown.R);
             #endregion
+
+            int px1 = x_w, py1 = y_w, px2 = 0, py2 = 0;
+            Player player1 = sb.addPlayer(px1, py1, px2, py2);
 
 
         }
