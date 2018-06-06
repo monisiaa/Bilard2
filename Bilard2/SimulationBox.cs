@@ -11,7 +11,7 @@ namespace Bilard2
 {
     public class SimulationBox
     {
-        public const int radius = 25;
+        public const int radius = 26;
 
         public Ball addBall(int X, int Y, int VX, int VY)
         {
