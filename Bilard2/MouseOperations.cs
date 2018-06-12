@@ -18,7 +18,6 @@ namespace Bilard2
             RightUp = 0x00000010
         }
 
-
         [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetCursorPos(int x, int y);
@@ -30,21 +29,27 @@ namespace Bilard2
         [DllImport("user32.dll")]
         private static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
 
+        //pobieranie pozycji kursora
         public static void SetCursorPosition(int x, int y)
         {
             SetCursorPos(x, y);
         }
 
+        //pobieranie pozycji kursora
         public static void SetCursorPosition(MousePoint point)
         {
             SetCursorPos(point.X, point.Y);
         }
 
+        //zwracanie pozycji kursora
         public static MousePoint GetCursorPosition()
         {
             MousePoint currentMousePoint;
             var gotPoint = GetCursorPos(out currentMousePoint);
-            if (!gotPoint) { currentMousePoint = new MousePoint(0, 0); }
+            if (!gotPoint)
+            {
+                currentMousePoint = new MousePoint(0, 0);
+            }
             return currentMousePoint;
         }
 
@@ -52,15 +57,10 @@ namespace Bilard2
         {
             MousePoint position = GetCursorPosition();
 
-            mouse_event
-                ((int)value,
-                 position.X,
-                 position.Y,
-                 0,
-                 0)
-                ;
+            mouse_event((int)value, position.X, position.Y, 0, 0);
         }
 
+        //struktura kursora
         [StructLayout(LayoutKind.Sequential)]
         public struct MousePoint
         {

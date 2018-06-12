@@ -14,8 +14,11 @@ namespace Bilard2
 {
     public partial class Form1 : Form
     {
+        int px1, py1, px2, py2;
+
         SimulationBox sb = new SimulationBox();
         Player player = new Player();
+        MouseOperations mouse = new MouseOperations();
 
         public Form1()
         {
@@ -65,7 +68,6 @@ namespace Bilard2
             Graphics l6 = CreateGraphics();
             l6.FillEllipse(blackBrush, 36, 335, 35, 35);
             #endregion
-
             #region[bile]
             int x_w = 550, y_w = 190, vx_w=0, vy_w=0;
             Ball white = sb.addBall(x_w, y_w, vx_w, vy_w);
@@ -147,7 +149,8 @@ namespace Bilard2
             Graphics LightBrownBall = CreateGraphics();
             LightBrownBall.FillEllipse(lightbrownBrush, lightbrown.X, lightbrown.Y, lightbrown.R, lightbrown.R);
             #endregion
-            
+
+            Player player1 = player.addPlayer(px1, py1, px2, py2);
 
         }
     }
