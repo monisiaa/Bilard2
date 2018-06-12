@@ -26,7 +26,7 @@ namespace Bilard2
             };
             return b;
         }
-        public Player addPlayer(int x1, int y1, int x2, int y2)
+        /*public Player addPlayer(int x1, int y1, int x2, int y2)
         {
             Player p = new Player()
             {
@@ -36,6 +36,6 @@ namespace Bilard2
                 y2 = y2
             };
             return p;
-        }
+        }*/
     }
 }

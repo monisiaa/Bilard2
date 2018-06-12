@@ -8,14 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Bilard2
 {
     public partial class Form1 : Form
     {
-        int x, y, width, height;
-
         SimulationBox sb = new SimulationBox();
+        Player player = new Player();
 
         public Form1()
         {
@@ -24,7 +24,7 @@ namespace Bilard2
 
         private void bStart_Click(object sender, EventArgs e)
         {
- #region[brush & pen]
+            #region[brush & pen]
             Pen grayPen = new Pen(Color.Gray, 20);
             Pen whitePen = new Pen(Color.White, 10);
             SolidBrush greenBrush = new SolidBrush(Color.Green);
@@ -51,7 +51,7 @@ namespace Bilard2
             Graphics r = CreateGraphics();
             t.FillRectangle(greenBrush, table);
             r.DrawRectangle(grayPen, 35, 35, 635, 335);
- #region[łuzy]
+            #region[łuzy]
             Graphics l1 = CreateGraphics();
             l1.FillEllipse(blackBrush, 36, 36, 35, 35);
             Graphics l2 = CreateGraphics();
@@ -66,7 +66,7 @@ namespace Bilard2
             l6.FillEllipse(blackBrush, 36, 335, 35, 35);
             #endregion
 
- #region[bile]
+            #region[bile]
             int x_w = 550, y_w = 190, vx_w=0, vy_w=0;
             Ball white = sb.addBall(x_w, y_w, vx_w, vy_w);
             Graphics WhiteBall = CreateGraphics();
@@ -147,11 +147,26 @@ namespace Bilard2
             Graphics LightBrownBall = CreateGraphics();
             LightBrownBall.FillEllipse(lightbrownBrush, lightbrown.X, lightbrown.Y, lightbrown.R, lightbrown.R);
             #endregion
-
-            int px1 = x_w, py1 = y_w, px2 = 0, py2 = 0;
-            Player player1 = sb.addPlayer(px1, py1, px2, py2);
-
+            
 
         }
     }
 }
+
+/*[DllImport("user.32.dll", EntryPoint = "SetCursorPos")]
+       private static extern bool SetCursorPos(int X, int Y);
+
+       [DllImport("user32.dll")]
+       public static extern void mouse_event(int dwFlags, int dx, int dy, int button, int dwExtraInfo);
+
+       private const int MOUSEEVENTF_LEFTDOWN = 0x02;
+       private const int MOUSEEVENTF_LEFTUP = 0x04;
+
+       public void Clicker(int x, int y)
+       {
+           SetCursorPos(x, y);
+           this.Refresh();
+           Application.DoEvents();
+           mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
+           mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
+       }*/
