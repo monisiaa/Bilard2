@@ -60,6 +60,10 @@ namespace Bilard2
             mouse_event((int)value, position.X, position.Y, 0, 0);
         }
 
+        public static void DoMouseEvent()
+        {
+
+        }
         //struktura kursora
         [StructLayout(LayoutKind.Sequential)]
         public struct MousePoint
