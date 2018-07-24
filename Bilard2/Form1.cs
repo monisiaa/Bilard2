@@ -14,12 +14,30 @@ namespace Bilard2
 {
     public partial class Form1 : Form
     {
-        //int px1, py1, px2, py2;
+        #region[brush & pen]
+        Pen grayPen = new Pen(Color.Gray, 20);
+        Pen whitePen = new Pen(Color.White, 10);
+        SolidBrush greenBrush = new SolidBrush(Color.Green);
+        SolidBrush blackBrush = new SolidBrush(Color.Black);
+        SolidBrush whiteBrush = new SolidBrush(Color.White);
+        SolidBrush yellowBrush = new SolidBrush(Color.Gold);
+        SolidBrush lightyellowBrush = new SolidBrush(Color.Khaki);
+        SolidBrush blueBrush = new SolidBrush(Color.Blue);
+        SolidBrush lightblueBrush = new SolidBrush(Color.DeepSkyBlue);
+        SolidBrush redBrush = new SolidBrush(Color.Red);
+        SolidBrush lightredBrush = new SolidBrush(Color.FromArgb(255, 70, 70));
+        SolidBrush purpleBrush = new SolidBrush(Color.Indigo);
+        SolidBrush lightpurpleBrush = new SolidBrush(Color.MediumOrchid);
+        SolidBrush orangeBrush = new SolidBrush(Color.OrangeRed);
+        SolidBrush lightorangeBrush = new SolidBrush(Color.Coral);
+        SolidBrush darkgreenBrush = new SolidBrush(Color.LimeGreen);
+        SolidBrush lightgreenBrush = new SolidBrush(Color.LawnGreen);
+        SolidBrush brownBrush = new SolidBrush(Color.DarkRed);
+        SolidBrush lightbrownBrush = new SolidBrush(Color.SaddleBrown);
+        #endregion
 
         SimulationBox sb = new SimulationBox();
-        //Player player = new Player();
-        //MouseOperations mouse = new MouseOperations();
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -27,48 +45,6 @@ namespace Bilard2
 
         private void bStart_Click(object sender, EventArgs e)
         {
-            #region[brush & pen]
-            Pen grayPen = new Pen(Color.Gray, 20);
-            Pen whitePen = new Pen(Color.White, 10);
-            SolidBrush greenBrush = new SolidBrush(Color.Green);
-            SolidBrush blackBrush = new SolidBrush(Color.Black);
-            SolidBrush whiteBrush = new SolidBrush(Color.White);
-            SolidBrush yellowBrush = new SolidBrush(Color.Gold);
-            SolidBrush lightyellowBrush = new SolidBrush(Color.Khaki);
-            SolidBrush blueBrush = new SolidBrush(Color.Blue);
-            SolidBrush lightblueBrush = new SolidBrush(Color.DeepSkyBlue);
-            SolidBrush redBrush = new SolidBrush(Color.Red);
-            SolidBrush lightredBrush = new SolidBrush(Color.FromArgb(255, 70, 70));
-            SolidBrush purpleBrush = new SolidBrush(Color.Indigo);
-            SolidBrush lightpurpleBrush = new SolidBrush(Color.MediumOrchid);
-            SolidBrush orangeBrush = new SolidBrush(Color.OrangeRed);
-            SolidBrush lightorangeBrush = new SolidBrush(Color.Coral);
-            SolidBrush darkgreenBrush = new SolidBrush(Color.LimeGreen);
-            SolidBrush lightgreenBrush = new SolidBrush(Color.LawnGreen);
-            SolidBrush brownBrush = new SolidBrush(Color.DarkRed);
-            SolidBrush lightbrownBrush = new SolidBrush(Color.SaddleBrown);
-            #endregion
-            Rectangle table = new Rectangle(35, 35, 625, 325);
-
-            Graphics t = CreateGraphics();
-            Graphics r = CreateGraphics();
-            t.FillRectangle(greenBrush, table);
-            r.DrawRectangle(grayPen, 35, 35, 635, 335);
-
-            #region[łuzy]
-            Graphics l1 = CreateGraphics();
-            l1.FillEllipse(blackBrush, 36, 36, 35, 35);
-            Graphics l2 = CreateGraphics();
-            l2.FillEllipse(blackBrush, 332, 36, 35, 35);
-            Graphics l3 = CreateGraphics();
-            l3.FillEllipse(blackBrush, 628, 36, 35, 35);
-            Graphics l4 = CreateGraphics();
-            l4.FillEllipse(blackBrush, 628, 335, 35, 35);
-            Graphics l5 = CreateGraphics();
-            l5.FillEllipse(blackBrush, 332, 335, 35, 35);
-            Graphics l6 = CreateGraphics();
-            l6.FillEllipse(blackBrush, 36, 335, 35, 35);
-            #endregion
 
             #region[bile]
             int x_w = 550, y_w = 190, vx_w = 0, vy_w = 0;
@@ -168,11 +144,36 @@ namespace Bilard2
             LightBrownBall.FillEllipse(lightbrownBrush, (float)lightbrown.X, (float)lightbrown.Y, (float)lightbrown.R, (float)lightbrown.R);
             #endregion
 
+            timer1.Enabled = true;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            Refresh();
 
+            sb.fromTheWalls();
+            sb.Collission();
+
+            Rectangle table = new Rectangle(35, 35, 625, 325);
+
+            Graphics t = CreateGraphics();
+            Graphics r = CreateGraphics();
+            t.FillRectangle(greenBrush, table);
+            r.DrawRectangle(grayPen, 35, 35, 635, 335);
+            #region[łuzy]
+            Graphics l1 = CreateGraphics();
+            l1.FillEllipse(blackBrush, 36, 36, 35, 35);
+            Graphics l2 = CreateGraphics();
+            l2.FillEllipse(blackBrush, 332, 36, 35, 35);
+            Graphics l3 = CreateGraphics();
+            l3.FillEllipse(blackBrush, 628, 36, 35, 35);
+            Graphics l4 = CreateGraphics();
+            l4.FillEllipse(blackBrush, 628, 335, 35, 35);
+            Graphics l5 = CreateGraphics();
+            l5.FillEllipse(blackBrush, 332, 335, 35, 35);
+            Graphics l6 = CreateGraphics();
+            l6.FillEllipse(blackBrush, 36, 335, 35, 35);
+            #endregion
         }
     }
 }
