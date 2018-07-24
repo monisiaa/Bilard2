@@ -14,11 +14,11 @@ namespace Bilard2
 {
     public partial class Form1 : Form
     {
-        int px1, py1, px2, py2;
+        //int px1, py1, px2, py2;
 
         SimulationBox sb = new SimulationBox();
-        Player player = new Player();
-        MouseOperations mouse = new MouseOperations();
+        //Player player = new Player();
+        //MouseOperations mouse = new MouseOperations();
 
         public Form1()
         {
@@ -55,8 +55,6 @@ namespace Bilard2
             t.FillRectangle(greenBrush, table);
             r.DrawRectangle(grayPen, 35, 35, 635, 335);
 
-            sb.fromTheWalls();
-
             #region[łuzy]
             Graphics l1 = CreateGraphics();
             l1.FillEllipse(blackBrush, 36, 36, 35, 35);
@@ -77,120 +75,104 @@ namespace Bilard2
             Ball white = sb.addBall(x_w, y_w, vx_w, vy_w);
            // sb.balls.Add(white);
             Graphics WhiteBall = CreateGraphics();
-            WhiteBall.FillEllipse(whiteBrush, white.X, white.Y, white.R, white.R);
+            WhiteBall.FillEllipse(whiteBrush, (float)white.X, (float)white.Y, (float)white.R, (float)white.R);
 
             int x_1 = 164, y_1 = 216, vx_1 = 0, vy_1 = 0;
             Ball yellow = sb.addBall(x_1, y_1, vx_1, vy_1);
             sb.balls.Add(yellow);
             Graphics YellowBall = CreateGraphics();
-            YellowBall.FillEllipse(yellowBrush, yellow.X, yellow.Y, yellow.R, yellow.R);
+            YellowBall.FillEllipse(yellowBrush, (float)yellow.X, (float)yellow.Y, (float)yellow.R, (float)yellow.R);
 
             int x_2 = 120, y_2 = 164, vx_2 = 0, vy_2 = 0;
             Ball blue = sb.addBall(x_2, y_2, vx_2, vy_2);
             sb.balls.Add(blue);
             Graphics BlueBall = CreateGraphics();
-            BlueBall.FillEllipse(blueBrush, blue.X, blue.Y, blue.R, blue.R);
+            BlueBall.FillEllipse(blueBrush, (float)blue.X, (float)blue.Y, (float)blue.R, (float)blue.R);
 
             int x_3 = 142, y_3 = 203, vx_3 = 0, vy_3 = 0;
             Ball red = sb.addBall(x_3, y_3, vx_3, vy_3);
             sb.balls.Add(red);
             Graphics RedBall = CreateGraphics();
-            RedBall.FillEllipse(redBrush, red.X, red.Y, red.R, red.R);
+            RedBall.FillEllipse(redBrush, (float)red.X, (float)red.Y, (float)red.R, (float)red.R);
 
             int x_4 = 120, y_4 = 216, vx_4 = 0, vy_4 = 0;
             Ball purple = sb.addBall(x_4, y_4, vx_4, vy_4);
             sb.balls.Add(purple);
             Graphics PurpleBall = CreateGraphics();
-            PurpleBall.FillEllipse(purpleBrush, purple.X, purple.Y, purple.R, purple.R);
+            PurpleBall.FillEllipse(purpleBrush, (float)purple.X, (float)purple.Y, (float)purple.R, (float)purple.R);
 
             int x_5 = 120, y_5 = 242, vx_5 = 0, vy_5 = 0;
             Ball orange = sb.addBall(x_5, y_5, vx_5, vy_5);
             sb.balls.Add(orange);
             Graphics OrangeBall = CreateGraphics();
-            OrangeBall.FillEllipse(orangeBrush, orange.X, orange.Y, orange.R, orange.R);
+            OrangeBall.FillEllipse(orangeBrush, (float)orange.X, (float)orange.Y, (float)orange.R, (float)orange.R);
 
             int x_6 = 142, y_6 = 151, vx_6 = 0, vy_6 = 0;
             Ball darkgreen = sb.addBall(x_6, y_6, vx_6, vy_6);
             sb.balls.Add(darkgreen);
             Graphics DarkGreenBall = CreateGraphics();
-            DarkGreenBall.FillEllipse(darkgreenBrush, darkgreen.X, darkgreen.Y, darkgreen.R, darkgreen.R);
+            DarkGreenBall.FillEllipse(darkgreenBrush, (float)darkgreen.X, (float)darkgreen.Y, (float)darkgreen.R, (float)darkgreen.R);
 
             int x_7 = 186, y_7 = 177, vx_7 = 0, vy_7 = 0;
             Ball brown = sb.addBall(x_7, y_7, vx_7, vy_7);
             sb.balls.Add(brown);
             Graphics BrownBall = CreateGraphics();
-            BrownBall.FillEllipse(brownBrush, brown.X, brown.Y, brown.R, brown.R);
+            BrownBall.FillEllipse(brownBrush, (float)brown.X, (float)brown.Y, (float)brown.R, (float)brown.R);
 
             int x_8 = 164, y_8 = 190, vx_8 = 0, vy_8 = 0;
             Ball black = sb.addBall(x_8, y_8, vx_8, vy_8);
             sb.balls.Add(black);
             Graphics BlackBall = CreateGraphics();
-            BlackBall.FillEllipse(blackBrush, black.X, black.Y, black.R, black.R);
+            BlackBall.FillEllipse(blackBrush, (float)black.X, (float)black.Y, (float)black.R, (float)black.R);
 
             int x_9 = 208, y_9 = 190, vx_9 = 0, vy_9 = 0;
             Ball lightyellow = sb.addBall(x_9, y_9, vx_9, vy_9);
             sb.balls.Add(lightyellow);
             Graphics LightYellowBall = CreateGraphics();
-            LightYellowBall.FillEllipse(lightyellowBrush, lightyellow.X, lightyellow.Y, lightyellow.R, lightyellow.R);
+            LightYellowBall.FillEllipse(lightyellowBrush, (float)lightyellow.X, (float)lightyellow.Y, (float)lightyellow.R, (float)lightyellow.R);
 
             int x_10 = 142, y_10 = 177, vx_10 = 0, vy_10 = 0;
             Ball lightblue = sb.addBall(x_10, y_10, vx_10, vy_10);
             sb.balls.Add(lightblue);
             Graphics LightBlueBall = CreateGraphics();
-            LightBlueBall.FillEllipse(lightblueBrush, lightblue.X, lightblue.Y, lightblue.R, lightblue.R);
+            LightBlueBall.FillEllipse(lightblueBrush, (float)lightblue.X, (float)lightblue.Y, (float)lightblue.R, (float)lightblue.R);
 
             int x_11 = 120, y_11 = 138, vx_11 = 0, vy_11 = 0;
             Ball lightred = sb.addBall(x_11, y_11, vx_11, vy_11);
             sb.balls.Add(lightred);
             Graphics LightRedBall = CreateGraphics();
-            LightRedBall.FillEllipse(lightredBrush, lightred.X, lightred.Y, lightred.R, lightred.R);
+            LightRedBall.FillEllipse(lightredBrush, (float)lightred.X, (float)lightred.Y, (float)lightred.R, (float)lightred.R);
 
             int x_12 = 186, y_12 = 203, vx_12 = 0, vy_12 = 0;
             Ball lightpurple = sb.addBall(x_12, y_12, vx_12, vy_12);
             sb.balls.Add(lightpurple);
             Graphics LightPurpleBall = CreateGraphics();
-            LightPurpleBall.FillEllipse(lightpurpleBrush, lightpurple.X, lightpurple.Y, lightpurple.R, lightpurple.R);
+            LightPurpleBall.FillEllipse(lightpurpleBrush, (float)lightpurple.X, (float)lightpurple.Y, (float)lightpurple.R, (float)lightpurple.R);
 
             int x_13 = 120, y_13 = 190, vx_13 = 0, vy_13 = 0;
             Ball lightorange = sb.addBall(x_13, y_13, vx_13, vy_13);
             sb.balls.Add(lightorange);
             Graphics LightOrangeBall = CreateGraphics();
-            LightOrangeBall.FillEllipse(lightorangeBrush, lightorange.X, lightorange.Y, lightorange.R, lightorange.R);
+            LightOrangeBall.FillEllipse(lightorangeBrush, (float)lightorange.X, (float)lightorange.Y, (float)lightorange.R, (float)lightorange.R);
 
             int x_14 = 142, y_14 = 229, vx_14 = 0, vy_14 = 0;
             Ball lightgreen = sb.addBall(x_14, y_14, vx_14, vy_14);
             sb.balls.Add(lightgreen);
             Graphics LightGreenBall = CreateGraphics();
-            LightGreenBall.FillEllipse(lightgreenBrush, lightgreen.X, lightgreen.Y, lightgreen.R, lightgreen.R);
+            LightGreenBall.FillEllipse(lightgreenBrush, (float)lightgreen.X, (float)lightgreen.Y, (float)lightgreen.R, (float)lightgreen.R);
 
             int x_15 = 164, y_15 = 164, vx_15 = 0, vy_15 = 0;
             Ball lightbrown = sb.addBall(x_15, y_15, vx_15, vy_15);
             sb.balls.Add(lightbrown);
             Graphics LightBrownBall = CreateGraphics();
-            LightBrownBall.FillEllipse(lightbrownBrush, lightbrown.X, lightbrown.Y, lightbrown.R, lightbrown.R);
+            LightBrownBall.FillEllipse(lightbrownBrush, (float)lightbrown.X, (float)lightbrown.Y, (float)lightbrown.R, (float)lightbrown.R);
             #endregion
 
+        }
 
-            Player player1 = player.addPlayer(px1, py1, px2, py2);
+        private void timer1_Tick(object sender, EventArgs e)
+        {
 
         }
     }
 }
-
-/*[DllImport("user.32.dll", EntryPoint = "SetCursorPos")]
-       private static extern bool SetCursorPos(int X, int Y);
-
-       [DllImport("user32.dll")]
-       public static extern void mouse_event(int dwFlags, int dx, int dy, int button, int dwExtraInfo);
-
-       private const int MOUSEEVENTF_LEFTDOWN = 0x02;
-       private const int MOUSEEVENTF_LEFTUP = 0x04;
-
-       public void Clicker(int x, int y)
-       {
-           SetCursorPos(x, y);
-           this.Refresh();
-           Application.DoEvents();
-           mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
-           mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
-       }*/

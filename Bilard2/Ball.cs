@@ -8,16 +8,16 @@ namespace Bilard2
 {
     public class Ball
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int VX { get; set; }
-        public int VY { get; set; }
-        public int R { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double VX { get; set; }
+        public double VY { get; set; }
+        public double R { get; set; }
 
-        public int D { get { return 2 * R; } }
-
-        public int NVX { get; set; }
-        public int NVY { get; set; }
-        public int Mass { get; set; }
+        public double D { get { return 2 * R; } }
+         
+        public double NVX { get; set; }
+        public double NVY { get; set; }
+        public double Mass { get; set; }
     }
 }

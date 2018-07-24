@@ -51,7 +51,7 @@ namespace Bilard2
             }
         }
 
-       /* public void Collission()
+       public void Collission()
         {
             for (int i = 0; i < ballList.Count(); i++)
             {
@@ -96,7 +96,7 @@ namespace Bilard2
                 }
             }
         }
-        */
+
         public List<Ball> balls
         {
             get
