@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Bilard2
 {
@@ -37,10 +38,28 @@ namespace Bilard2
         #endregion
 
         SimulationBox sb = new SimulationBox();
-        
+        BufferedGraphicsContext graphicsContext;
+        BufferedGraphics bufferedGraphics;
+
         public Form1()
         {
             InitializeComponent();
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            graphicsContext = BufferedGraphicsManager.Current;
+            graphicsContext.MaximumBuffer = new Size(Width + 1, Height + 1);
+            bufferedGraphics = graphicsContext.Allocate(CreateGraphics(), new Rectangle(0, 0, Width, Height));
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+
+            graphicsContext = BufferedGraphicsManager.Current;
+            graphicsContext.MaximumBuffer = new Size(Width + 1, Height + 1);
+
+            bufferedGraphics?.Dispose();
+            bufferedGraphics = graphicsContext.Allocate(CreateGraphics(), new Rectangle(0, 0, Width, Height));
         }
 
         private void bStart_Click(object sender, EventArgs e)
@@ -147,32 +166,38 @@ namespace Bilard2
             timer1.Enabled = true;
         }
 
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            bufferedGraphics.Render(e.Graphics);
+
+        }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
+            DrawScene();
             Refresh();
+        }
 
-            sb.fromTheWalls();
-            sb.Collission();
+        private void DrawScene()
+        {
+            //sb.fromTheWalls();
+            //sb.Collission()
 
+            var graphics = bufferedGraphics.Graphics;
             Rectangle table = new Rectangle(35, 35, 625, 325);
 
-            Graphics t = CreateGraphics();
-            Graphics r = CreateGraphics();
-            t.FillRectangle(greenBrush, table);
-            r.DrawRectangle(grayPen, 35, 35, 635, 335);
+            graphicsContext.MaximumBuffer = new Size(Width + 1, Height + 1);
+            
+            graphics.FillRectangle(greenBrush, table);
+            graphics.DrawRectangle(grayPen, 35, 35, 635, 335);
             #region[łuzy]
-            Graphics l1 = CreateGraphics();
-            l1.FillEllipse(blackBrush, 36, 36, 35, 35);
-            Graphics l2 = CreateGraphics();
-            l2.FillEllipse(blackBrush, 332, 36, 35, 35);
-            Graphics l3 = CreateGraphics();
-            l3.FillEllipse(blackBrush, 628, 36, 35, 35);
-            Graphics l4 = CreateGraphics();
-            l4.FillEllipse(blackBrush, 628, 335, 35, 35);
-            Graphics l5 = CreateGraphics();
-            l5.FillEllipse(blackBrush, 332, 335, 35, 35);
-            Graphics l6 = CreateGraphics();
-            l6.FillEllipse(blackBrush, 36, 335, 35, 35);
+            graphics.FillEllipse(blackBrush, 36, 36, 35, 35);
+            graphics.FillEllipse(blackBrush, 332, 36, 35, 35);
+            graphics.FillEllipse(blackBrush, 628, 36, 35, 35);
+            graphics.FillEllipse(blackBrush, 628, 335, 35, 35);
+            graphics.FillEllipse(blackBrush, 332, 335, 35, 35);
+            graphics.FillEllipse(blackBrush, 36, 335, 35, 35);
             #endregion
         }
     }
