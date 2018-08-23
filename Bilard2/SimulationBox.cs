@@ -15,11 +15,11 @@ namespace Bilard2
 
         public const int radius = 26;
 
-        List<Ball> ballList = new List<Ball>();
+        List<Sphere> ballList = new List<Sphere>();
 
-        public Ball addBall(int X, int Y, int VX, int VY)
+        public Sphere addBall(int X, int Y, int VX, int VY)
         {
-            Ball b = new Ball()
+            Sphere b = new Sphere()
             {
                 X = X,
                 Y = Y,
@@ -97,7 +97,7 @@ namespace Bilard2
             }
         }
 
-        public List<Ball> balls
+        public List<Sphere> balls
         {
             get
             {

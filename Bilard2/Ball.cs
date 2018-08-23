@@ -1,23 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Bilard2
 {
-    public class Ball
+    class Ball
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double VX { get; set; }
-        public double VY { get; set; }
-        public double R { get; set; }
+        public Sphere Sphere { get; set; }
+        public SolidBrush Color { get; set; }
 
-        public double D { get { return 2 * R; } }
-         
-        public double NVX { get; set; }
-        public double NVY { get; set; }
-        public double Mass { get; set; }
+        public double X { get { return Sphere.X; } }
+        public double Y { get { return Sphere.Y; } }
+        public double R { get { return Sphere.R; } }
+
+        public bool IsVisible { get; set; } = true;
     }
 }
