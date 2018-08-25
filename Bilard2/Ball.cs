@@ -12,5 +12,13 @@ namespace Bilard2
         public double R { get { return Sphere.R; } }
 
         public bool IsVisible { get; set; } = true;
+        public BallType Type { get; set; }
+    }
+
+    enum BallType
+    {
+        White,
+        Color,
+        Black
     }
 }
