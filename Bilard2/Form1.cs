@@ -30,14 +30,28 @@ namespace Bilard2
         SolidBrush lightbrownBrush = new SolidBrush(Color.SaddleBrown);
         #endregion
 
+        const int TimerIntervalMiliseconds = 10;
+        const double TimerIntervalSeconds = TimerIntervalMiliseconds / 1000.0f;
+        const float MaxCueDistance = 80.0f;
+        const int CueReturnTimeTicks = 10;
+        const float CueReturnDistanceInTick = MaxCueDistance / CueReturnTimeTicks;
+
         SimulationBox sb = new SimulationBox();
         BufferedGraphicsContext graphicsContext;
         BufferedGraphics bufferedGraphics;
         Ball[] balls;
         double mouseX, mouseY;
         double lastMouseX, lastMouseY;
+        double cueDistanceFromWhiteBall;
+        double cuePower;
+        double cueRotation;
+        double cueX;
+        double cueY;
 
+        bool enableCue;
+        TableState tableState;
 
+               
         public Form1()
         {
             InitializeComponent();
@@ -63,6 +77,7 @@ namespace Bilard2
         private void bStart_Click(object sender, EventArgs e)
         {
             timer1.Enabled = true;
+            timer1.Interval = 10;
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -72,6 +87,25 @@ namespace Bilard2
             mouseX = e.X;
             mouseY = e.Y;
         }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            var whiteBall = GetWhiteBall();
+            var x = whiteBall.X - e.X;
+            var y = whiteBall.Y - e.Y;
+            var r = whiteBall.Sphere.R;
+
+            if (x * x + y * y <= r * r && tableState == TableState.None)
+            {
+                tableState = TableState.CueMoving;
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            ReleaseCue();
+        }
+
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -84,6 +118,8 @@ namespace Bilard2
         {
             var graphics = bufferedGraphics.Graphics;
 
+            UpdateTable();
+
             DrawScene(graphics);
             DrawBalls(graphics);
             DrawCue(graphics);
@@ -92,7 +128,7 @@ namespace Bilard2
         }
 
         private void DrawScene(Graphics graphics)
-        { 
+        {
             //sb.fromTheWalls();
             //sb.Collission()
 
@@ -146,28 +182,79 @@ namespace Bilard2
             graphics.FillEllipse(color, (float)ball.X, (float)ball.Y, (float)ball.R, (float)ball.R);
         }
 
+        private Ball GetWhiteBall()
+        {
+            return balls.Single(ball => ball.Type == BallType.White);
+        }
+
         private void DrawCue(Graphics graphics)
         {
-            var whiteBall = balls.Single(ball => ball.Type == BallType.White);
-            var ballX = whiteBall.X + whiteBall.R / 2;
-            var ballY = whiteBall.Y + whiteBall.R / 2;
-            var diffX = mouseX - ballX;
-            var diffY = mouseY - ballY;
-            const float MaxPower = 80.0f;
+            if (tableState != TableState.CueMoving && tableState != TableState.CueReleased)
+            {
+                return;
+            }
 
-            var alpha = Math.Atan2(diffY, diffX) * 180 / Math.PI;
-            var power = Math.Sqrt(diffX * diffX + diffY * diffY);
-            var clippedPower = Math.Max(Math.Min(MaxPower, power), whiteBall.R / 2);
-
-            graphics.TranslateTransform((float)ballX, (float)ballY);
-            graphics.RotateTransform((float) alpha);
-            graphics.TranslateTransform((float) clippedPower, 0);
+            graphics.TranslateTransform((float)cueX, (float) cueY);
+            graphics.RotateTransform((float) cueRotation);
+            graphics.TranslateTransform((float) cueDistanceFromWhiteBall, 0);
 
             graphics.FillRectangle(brownBrush, new RectangleF(0, -5, 100, 4));
 
             graphics.ResetTransform();
         }
 
+        private void ReleaseCue()
+        {
+            cuePower = cueDistanceFromWhiteBall / MaxCueDistance;
+            tableState = TableState.CueReleased;
+        }
 
+        private void UpdateTable()
+        {
+            if(tableState == TableState.None)
+            {
+                return;
+            }
+
+            if(tableState == TableState.CueMoving)
+            {
+                var whiteBall = GetWhiteBall();
+                cueX = whiteBall.X + whiteBall.R;
+                cueY = whiteBall.Y + whiteBall.R;
+                var diffX = mouseX - cueX;
+                var diffY = mouseY - cueY;
+
+                cueRotation = Math.Atan2(diffY, diffX) * 180 / Math.PI;
+                var distance = Math.Sqrt(diffX * diffX + diffY * diffY);
+
+                cueDistanceFromWhiteBall = Math.Max(Math.Min(MaxCueDistance, distance), whiteBall.R);
+            }
+
+            if(tableState == TableState.CueReleased)
+            {
+                var whiteBall = GetWhiteBall();
+
+                if(cueDistanceFromWhiteBall <= whiteBall.R)
+                {
+                    tableState = TableState.BallsMoving;
+                }
+
+                cueDistanceFromWhiteBall -= CueReturnDistanceInTick * cuePower * cuePower;
+            }
+
+            if(tableState == TableState.BallsMoving)
+            {
+                tableState = TableState.None;
+                // aktualizacja fizyki bil
+            }
+        }
+
+        enum TableState
+        {
+            None,
+            CueMoving,
+            CueReleased,
+            BallsMoving
+        }
     }
 }
