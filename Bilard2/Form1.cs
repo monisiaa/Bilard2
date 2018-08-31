@@ -9,7 +9,7 @@ namespace Bilard2
     public partial class Form1 : Form
     {
         #region[brush & pen]
-        Pen grayPen = new Pen(Color.Gray, 20);
+        Pen grayPen = new Pen(Color.Gray, TableEdgeWidth * 2);
         Pen whitePen = new Pen(Color.White, 10);
         SolidBrush greenBrush = new SolidBrush(Color.Green);
         SolidBrush blackBrush = new SolidBrush(Color.Black);
@@ -35,6 +35,11 @@ namespace Bilard2
         const float MaxCueDistance = 80.0f;
         const int CueReturnTimeTicks = 10;
         const float CueReturnDistanceInTick = MaxCueDistance / CueReturnTimeTicks;
+        const int TableX = 35;
+        const int TableY = 35;
+        const int TableW = 635;
+        const int TableH = 335;
+        const int TableEdgeWidth = 10;
 
         SimulationBox sb = new SimulationBox();
         BufferedGraphicsContext graphicsContext;
@@ -91,19 +96,21 @@ namespace Bilard2
         protected override void OnMouseDown(MouseEventArgs e)
         {
             var whiteBall = GetWhiteBall();
-            var x = whiteBall.X - e.X;
-            var y = whiteBall.Y - e.Y;
-            var r = whiteBall.Sphere.R;
+            var x = whiteBall.X + whiteBall.R - e.X;
+            var y = whiteBall.Y + whiteBall.R - e.Y;
+            var r = whiteBall.R;
 
-            if (x * x + y * y <= r * r && tableState == TableState.None)
+            if (Math.Sqrt(x * x + y * y) < r && tableState == TableState.None)
             {
                 tableState = TableState.CueMoving;
+                Cursor.Hide();
             }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             ReleaseCue();
+            Cursor.Show();
         }
 
 
@@ -129,13 +136,11 @@ namespace Bilard2
 
         private void DrawScene(Graphics graphics)
         {
-            //sb.fromTheWalls();
-            //sb.Collission()
+            var tableRect = new Rectangle(TableX, TableY, TableW, TableH);
 
-            Rectangle table = new Rectangle(35, 35, 625, 325);
-
-            graphics.FillRectangle(greenBrush, table);
-            graphics.DrawRectangle(grayPen, 35, 35, 635, 335);
+            graphics.FillRectangle(blackBrush, new RectangleF(0, 0, Width, Height));
+            graphics.FillRectangle(greenBrush, tableRect);
+            graphics.DrawRectangle(grayPen, tableRect);
             #region[łuzy]
             graphics.FillEllipse(blackBrush, 36, 36, 35, 35);
             graphics.FillEllipse(blackBrush, 332, 36, 35, 35);
@@ -152,19 +157,19 @@ namespace Bilard2
             {
                 new Ball { Sphere = sb.addBall(550, 190, 0, 0), Color = whiteBrush, Type = BallType.White },
                 new Ball { Sphere = sb.addBall(164, 216, 0, 0), Color = yellowBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(120, 164, 0, 0), Color = blueBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(142, 203, 0, 0), Color = redBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(120, 216, 0, 0), Color = purpleBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(120, 164, 0, 0), Color = blueBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(142, 203, 0, 0), Color = redBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(120, 216, 0, 0), Color = purpleBrush, Type = BallType.Color },
                 new Ball { Sphere = sb.addBall(120, 242, 0, 0), Color = orangeBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(142, 151, 0, 0), Color = darkgreenBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(186, 177, 0, 0), Color = brownBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(164, 190, 0, 0), Color = blackBrush, Type = BallType.Black },
+                //new Ball { Sphere = sb.addBall(142, 151, 0, 0), Color = darkgreenBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(186, 177, 0, 0), Color = brownBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(164, 190, 0, 0), Color = blackBrush, Type = BallType.Black },
                 new Ball { Sphere = sb.addBall(208, 190, 0, 0), Color = lightyellowBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(142, 177, 0, 0), Color = lightblueBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(142, 177, 0, 0), Color = lightblueBrush, Type = BallType.Color },
                 new Ball { Sphere = sb.addBall(120, 138, 0, 0), Color = lightredBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(186, 203, 0, 0), Color = lightpurpleBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(186, 203, 0, 0), Color = lightpurpleBrush, Type = BallType.Color },
                 new Ball { Sphere = sb.addBall(120, 190, 0, 0), Color = lightorangeBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(142, 229, 0, 0), Color = lightgreenBrush, Type = BallType.Color },
+                //new Ball { Sphere = sb.addBall(142, 229, 0, 0), Color = lightgreenBrush, Type = BallType.Color },
                 new Ball { Sphere = sb.addBall(164, 164, 0, 0), Color = lightbrownBrush, Type = BallType.Color },
             };
         }
@@ -179,7 +184,7 @@ namespace Bilard2
 
         private void DrawBall(Graphics graphics, Sphere ball, SolidBrush color)
         {
-            graphics.FillEllipse(color, (float)ball.X, (float)ball.Y, (float)ball.R, (float)ball.R);
+            graphics.FillEllipse(color, (float)ball.X, (float)ball.Y, (float)ball.R * 2, (float)ball.R * 2);
         }
 
         private Ball GetWhiteBall()
@@ -236,7 +241,11 @@ namespace Bilard2
 
                 if(cueDistanceFromWhiteBall <= whiteBall.R)
                 {
+                    var cueRotationRadians = cueRotation * Math.PI / 180.0f;
+
                     tableState = TableState.BallsMoving;
+                    whiteBall.Sphere.VX = 20 * cuePower * cuePower * -Math.Cos(cueRotationRadians);
+                    whiteBall.Sphere.VY = 20 * cuePower * cuePower * -Math.Sin(cueRotationRadians);
                 }
 
                 cueDistanceFromWhiteBall -= CueReturnDistanceInTick * cuePower * cuePower;
@@ -244,7 +253,24 @@ namespace Bilard2
 
             if(tableState == TableState.BallsMoving)
             {
-                tableState = TableState.None;
+                sb.fromTheWalls(TableX + TableEdgeWidth, TableY + TableEdgeWidth, TableW - 2 * TableEdgeWidth, TableH - 2 * TableEdgeWidth);
+                sb.Collission();
+
+                foreach(var ball in balls)
+                {
+                    // aktualizacja pozycji
+                    ball.Sphere.X += ball.Sphere.VX * TimerIntervalSeconds;
+                    ball.Sphere.Y += ball.Sphere.VY * TimerIntervalSeconds;
+
+                    // tarcie
+                    ball.Sphere.VX *= 0.98;
+                    ball.Sphere.VY *= 0.98;
+                }
+
+                if(balls.All(ball => Math.Abs(ball.Sphere.VX) < 0.2 && Math.Abs(ball.Sphere.VY) < 0.2))
+                {
+                    tableState = TableState.None;
+                }
                 // aktualizacja fizyki bil
             }
         }

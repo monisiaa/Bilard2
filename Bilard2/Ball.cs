@@ -9,7 +9,7 @@ namespace Bilard2
 
         public double X { get { return Sphere.X; } }
         public double Y { get { return Sphere.Y; } }
-        public double R { get { return Sphere.R / 2; } }
+        public double R { get { return Sphere.R; } }
 
         public bool IsVisible { get; set; } = true;
         public BallType Type { get; set; }

@@ -13,7 +13,7 @@ namespace Bilard2
     public class SimulationBox
     {
 
-        public const int radius = 26;
+        public const int radius = 12;
 
         List<Sphere> ballList = new List<Sphere>();
 
@@ -32,15 +32,15 @@ namespace Bilard2
             return b;
         }
 
-        public void fromTheWalls()
+        public void fromTheWalls(int tableX, int tableY, int tableW, int tableH)
         {
             foreach (var b in ballList)
             {
-                if (b.X < 0 || b.X + b.D > 625)
+                if (b.X < tableX || b.X + b.D > tableW + tableX)
                 {
                     b.VX = -b.VX;
                 }
-                if (b.Y < 0 || b.Y + b.D > 325)
+                if (b.Y < tableY || b.Y + b.D > tableH + tableY)
                 {
                     b.VY = -b.VY;
                 }
