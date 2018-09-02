@@ -32,6 +32,11 @@ namespace Bilard2
             return b;
         }
 
+        public void removeBall(Sphere sphere)
+        {
+            balls.Remove(sphere);
+        }
+
         public void fromTheWalls(int tableX, int tableY, int tableW, int tableH)
         {
             foreach (var b in ballList)
@@ -50,6 +55,8 @@ namespace Bilard2
 
             }
         }
+
+
 
        public void Collission()
         {

@@ -2,7 +2,7 @@
 
 namespace Bilard2
 {
-    class Ball
+    public class Ball
     {
         public Sphere Sphere { get; set; }
         public SolidBrush Color { get; set; }
@@ -13,9 +13,17 @@ namespace Bilard2
 
         public bool IsVisible { get; set; } = true;
         public BallType Type { get; set; }
+
+        public void Draw(Graphics graphics)
+        {
+            if (IsVisible)
+            {
+                graphics.FillEllipse(Color, (float)X, (float)Y, (float)R * 2, (float)R * 2);
+            }
+        }
     }
 
-    enum BallType
+    public enum BallType
     {
         White,
         Color,

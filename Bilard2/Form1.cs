@@ -45,6 +45,7 @@ namespace Bilard2
         BufferedGraphicsContext graphicsContext;
         BufferedGraphics bufferedGraphics;
         Ball[] balls;
+        Table table;
         double mouseX, mouseY;
         double lastMouseX, lastMouseY;
         double cueDistanceFromWhiteBall;
@@ -66,6 +67,7 @@ namespace Bilard2
             graphicsContext.MaximumBuffer = new System.Drawing.Size(Width + 1, Height + 1);
             bufferedGraphics = graphicsContext.Allocate(CreateGraphics(), new Rectangle(0, 0, Width, Height));
             balls = CreateBalls();
+            table = CreateTable();
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -136,9 +138,9 @@ namespace Bilard2
 
         private void DrawScene(Graphics graphics)
         {
-            var tableRect = new Rectangle(TableX, TableY, TableW, TableH);
+            /*var tableRect = new Rectangle(TableX, TableY, TableW, TableH);
 
-            graphics.FillRectangle(blackBrush, new RectangleF(0, 0, Width, Height));
+            
             graphics.FillRectangle(greenBrush, tableRect);
             graphics.DrawRectangle(grayPen, tableRect);
             #region[łuzy]
@@ -148,7 +150,9 @@ namespace Bilard2
             graphics.FillEllipse(blackBrush, 628, 335, 35, 35);
             graphics.FillEllipse(blackBrush, 332, 335, 35, 35);
             graphics.FillEllipse(blackBrush, 36, 335, 35, 35);
-            #endregion
+            #endregion*/
+            graphics.FillRectangle(blackBrush, new RectangleF(0, 0, Width, Height));
+            table.Draw(graphics);
         }
 
         private Ball[] CreateBalls()
@@ -174,18 +178,26 @@ namespace Bilard2
             };
         }
 
+        private Table CreateTable()
+        {
+            Table table = new Table(TableX, TableY, TableW, TableH, TableEdgeWidth, greenBrush, grayPen);
+            table.AddHole(36, 36, 17);
+            table.AddHole(332, 36, 17);
+            table.AddHole(628, 36, 17);
+            table.AddHole(628, 335, 17);
+            table.AddHole(332, 335, 17);
+            table.AddHole(36, 335, 17);
+            return table;
+        }
+
         private void DrawBalls(Graphics graphics)
         {
             foreach (var ball in balls)
             {
-                DrawBall(graphics, ball.Sphere, ball.Color);
+                ball.Draw(graphics);
             }
         }
 
-        private void DrawBall(Graphics graphics, Sphere ball, SolidBrush color)
-        {
-            graphics.FillEllipse(color, (float)ball.X, (float)ball.Y, (float)ball.R * 2, (float)ball.R * 2);
-        }
 
         private Ball GetWhiteBall()
         {
@@ -258,6 +270,26 @@ namespace Bilard2
 
                 foreach(var ball in balls)
                 {
+                    if(table.IsBallInsideHole(ball))
+                    {
+                        if (ball.Type == BallType.White)
+                        {
+                            RestartWhiteBall();
+                        }
+                        else
+                        {
+                            ball.IsVisible = false;
+                            sb.removeBall(ball.Sphere);
+                            ball.Sphere.VX = 0;
+                            ball.Sphere.VY = 0;
+                        }
+                    }
+
+                    if(!ball.IsVisible)
+                    {
+                        continue;
+                    }
+
                     // aktualizacja pozycji
                     ball.Sphere.X += ball.Sphere.VX * TimerIntervalSeconds;
                     ball.Sphere.Y += ball.Sphere.VY * TimerIntervalSeconds;
@@ -267,12 +299,27 @@ namespace Bilard2
                     ball.Sphere.VY *= 0.98;
                 }
 
-                if(balls.All(ball => Math.Abs(ball.Sphere.VX) < 0.2 && Math.Abs(ball.Sphere.VY) < 0.2))
+                if(balls.All(ball => Math.Abs(ball.Sphere.VX) < 0.15 && Math.Abs(ball.Sphere.VY) < 0.15))
                 {
                     tableState = TableState.None;
+
+                    foreach(var ball in balls)
+                    {
+                        ball.Sphere.VX = 0;
+                        ball.Sphere.VY = 0;
+                    }
                 }
                 // aktualizacja fizyki bil
             }
+        }
+
+        private void RestartWhiteBall()
+        {
+            var whiteBall = GetWhiteBall();
+            whiteBall.Sphere.X = 550;
+            whiteBall.Sphere.Y = 190;
+            whiteBall.Sphere.VX = 0;
+            whiteBall.Sphere.VY = 0;
         }
 
         enum TableState
