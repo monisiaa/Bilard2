@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows;
@@ -28,6 +29,7 @@ namespace Bilard2
         SolidBrush lightgreenBrush = new SolidBrush(Color.LawnGreen);
         SolidBrush brownBrush = new SolidBrush(Color.DarkRed);
         SolidBrush lightbrownBrush = new SolidBrush(Color.SaddleBrown);
+        Font timerFont = new Font(FontFamily.GenericMonospace, 15);
         #endregion
 
         const int TimerIntervalMiliseconds = 10;
@@ -46,6 +48,7 @@ namespace Bilard2
         BufferedGraphics bufferedGraphics;
         Ball[] balls;
         Table table;
+        Scores scores;
         double mouseX, mouseY;
         double lastMouseX, lastMouseY;
         double cueDistanceFromWhiteBall;
@@ -56,7 +59,8 @@ namespace Bilard2
 
         bool enableCue;
         TableState tableState;
-
+        TimeSpan time;
+        Stopwatch watch;
                
         public Form1()
         {
@@ -68,6 +72,9 @@ namespace Bilard2
             bufferedGraphics = graphicsContext.Allocate(CreateGraphics(), new Rectangle(0, 0, Width, Height));
             balls = CreateBalls();
             table = CreateTable();
+            time = TimeSpan.Zero;
+            watch = new Stopwatch();
+            scores = new Scores();
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -85,6 +92,7 @@ namespace Bilard2
         {
             timer1.Enabled = true;
             timer1.Interval = 10;
+            watch.Start();
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -120,18 +128,20 @@ namespace Bilard2
         {
             base.OnPaint(e);
             bufferedGraphics.Render(e.Graphics);
-
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             var graphics = bufferedGraphics.Graphics;
 
+            time = time.Add(TimeSpan.FromMilliseconds(TimerIntervalMiliseconds));
             UpdateTable();
 
             DrawScene(graphics);
             DrawBalls(graphics);
             DrawCue(graphics);
+            DrawTimer(graphics);
+            scores.DrawScores(graphics, 700, 50);
 
             Refresh();
         }
@@ -198,6 +208,11 @@ namespace Bilard2
             }
         }
 
+        private void DrawTimer(Graphics graphics)
+        {
+            time = watch.Elapsed;
+            graphics.DrawString(time.ToString("c"), timerFont, whiteBrush, 300, 400);
+        }
 
         private Ball GetWhiteBall()
         {
@@ -270,6 +285,11 @@ namespace Bilard2
 
                 foreach(var ball in balls)
                 {
+                    if(!ball.IsVisible)
+                    {
+                        continue;
+                    }
+
                     if(table.IsBallInsideHole(ball))
                     {
                         if (ball.Type == BallType.White)
@@ -282,12 +302,8 @@ namespace Bilard2
                             sb.removeBall(ball.Sphere);
                             ball.Sphere.VX = 0;
                             ball.Sphere.VY = 0;
+                            scores.AddScore(watch.Elapsed, ball.Color);
                         }
-                    }
-
-                    if(!ball.IsVisible)
-                    {
-                        continue;
                     }
 
                     // aktualizacja pozycji
