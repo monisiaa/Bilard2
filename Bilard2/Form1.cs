@@ -30,6 +30,7 @@ namespace Bilard2
         SolidBrush brownBrush = new SolidBrush(Color.DarkRed);
         SolidBrush lightbrownBrush = new SolidBrush(Color.SaddleBrown);
         Font timerFont = new Font(FontFamily.GenericMonospace, 15);
+        Font gameOverFont = new Font(FontFamily.GenericMonospace, 30);
         #endregion
 
         const int TimerIntervalMiliseconds = 10;
@@ -43,12 +44,13 @@ namespace Bilard2
         const int TableH = 335;
         const int TableEdgeWidth = 10;
 
-        SimulationBox sb = new SimulationBox();
+        SimulationBoxOld sb = new SimulationBoxOld();
         BufferedGraphicsContext graphicsContext;
         BufferedGraphics bufferedGraphics;
         Ball[] balls;
         Table table;
         Scores scores;
+        SimulationBox simulationBox;
         double mouseX, mouseY;
         double lastMouseX, lastMouseY;
         double cueDistanceFromWhiteBall;
@@ -70,11 +72,6 @@ namespace Bilard2
             graphicsContext = BufferedGraphicsManager.Current;
             graphicsContext.MaximumBuffer = new System.Drawing.Size(Width + 1, Height + 1);
             bufferedGraphics = graphicsContext.Allocate(CreateGraphics(), new Rectangle(0, 0, Width, Height));
-            balls = CreateBalls();
-            table = CreateTable();
-            time = TimeSpan.Zero;
-            watch = new Stopwatch();
-            scores = new Scores();
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -92,6 +89,7 @@ namespace Bilard2
         {
             timer1.Enabled = true;
             timer1.Interval = 10;
+            RestartGame();
             watch.Start();
         }
 
@@ -119,8 +117,11 @@ namespace Bilard2
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            ReleaseCue();
-            Cursor.Show();
+            if (tableState == TableState.CueMoving)
+            {
+                ReleaseCue();
+                Cursor.Show();
+            }
         }
 
 
@@ -137,54 +138,49 @@ namespace Bilard2
             time = time.Add(TimeSpan.FromMilliseconds(TimerIntervalMiliseconds));
             UpdateTable();
 
-            DrawScene(graphics);
+            graphics.FillRectangle(blackBrush, new RectangleF(0, 0, Width, Height));
+            table.Draw(graphics);
             DrawBalls(graphics);
             DrawCue(graphics);
             DrawTimer(graphics);
-            scores.DrawScores(graphics, 700, 50);
+            scores.DrawScores(graphics, 700, 30);
+            DrawGameOver(graphics);
 
             Refresh();
         }
 
-        private void DrawScene(Graphics graphics)
+        private void DrawGameOver(Graphics graphics)
         {
-            /*var tableRect = new Rectangle(TableX, TableY, TableW, TableH);
-
-            
-            graphics.FillRectangle(greenBrush, tableRect);
-            graphics.DrawRectangle(grayPen, tableRect);
-            #region[łuzy]
-            graphics.FillEllipse(blackBrush, 36, 36, 35, 35);
-            graphics.FillEllipse(blackBrush, 332, 36, 35, 35);
-            graphics.FillEllipse(blackBrush, 628, 36, 35, 35);
-            graphics.FillEllipse(blackBrush, 628, 335, 35, 35);
-            graphics.FillEllipse(blackBrush, 332, 335, 35, 35);
-            graphics.FillEllipse(blackBrush, 36, 335, 35, 35);
-            #endregion*/
-            graphics.FillRectangle(blackBrush, new RectangleF(0, 0, Width, Height));
-            table.Draw(graphics);
+            if(tableState == TableState.GameWon)
+            {
+                graphics.DrawString("Wygrana", gameOverFont, redBrush, 200, 200);
+            }
+            else if(tableState == TableState.GameLost)
+            {
+                graphics.DrawString("Przegrana, czarna bila\nmusi być ostatnia", gameOverFont, redBrush, 100, 100);
+            }
         }
 
         private Ball[] CreateBalls()
         {
             return new[]
             {
-                new Ball { Sphere = sb.addBall(550, 190, 0, 0), Color = whiteBrush, Type = BallType.White },
-                new Ball { Sphere = sb.addBall(164, 216, 0, 0), Color = yellowBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(120, 164, 0, 0), Color = blueBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(142, 203, 0, 0), Color = redBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(120, 216, 0, 0), Color = purpleBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(120, 242, 0, 0), Color = orangeBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(142, 151, 0, 0), Color = darkgreenBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(186, 177, 0, 0), Color = brownBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(164, 190, 0, 0), Color = blackBrush, Type = BallType.Black },
-                new Ball { Sphere = sb.addBall(208, 190, 0, 0), Color = lightyellowBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(142, 177, 0, 0), Color = lightblueBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(120, 138, 0, 0), Color = lightredBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(186, 203, 0, 0), Color = lightpurpleBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(120, 190, 0, 0), Color = lightorangeBrush, Type = BallType.Color },
-                //new Ball { Sphere = sb.addBall(142, 229, 0, 0), Color = lightgreenBrush, Type = BallType.Color },
-                new Ball { Sphere = sb.addBall(164, 164, 0, 0), Color = lightbrownBrush, Type = BallType.Color },
+                new Ball { Sphere = sb.addBall(550, 190, 0, 0), Color = whiteBrush, Type = BallType.White, Center = new Vector(550, 190) },
+                new Ball { Sphere = sb.addBall(164, 216, 0, 0), Color = yellowBrush, Type = BallType.Color, Center = new Vector(164, 216) },
+                new Ball { Sphere = sb.addBall(120, 164, 0, 0), Color = blueBrush, Type = BallType.Color, Center = new Vector(120, 164) },
+                new Ball { Sphere = sb.addBall(142, 203, 0, 0), Color = redBrush, Type = BallType.Color, Center = new Vector(142, 203) },
+                new Ball { Sphere = sb.addBall(120, 216, 0, 0), Color = purpleBrush, Type = BallType.Color, Center = new Vector (120, 216) },
+                new Ball { Sphere = sb.addBall(120, 242, 0, 0), Color = orangeBrush, Type = BallType.Color, Center = new Vector(120, 242) },
+                new Ball { Sphere = sb.addBall(142, 151, 0, 0), Color = darkgreenBrush, Type = BallType.Color, Center = new Vector(142, 151) },
+                new Ball { Sphere = sb.addBall(186, 177, 0, 0), Color = brownBrush, Type = BallType.Color, Center = new Vector(186, 177) },
+                new Ball { Sphere = sb.addBall(164, 190, 0, 0), Color = blackBrush, Type = BallType.Black, Center = new Vector(164, 190) },
+                new Ball { Sphere = sb.addBall(208, 190, 0, 0), Color = lightyellowBrush, Type = BallType.Color, Center = new Vector(208, 190) },
+                new Ball { Sphere = sb.addBall(142, 177, 0, 0), Color = lightblueBrush, Type = BallType.Color, Center = new Vector(142, 177) },
+                new Ball { Sphere = sb.addBall(120, 138, 0, 0), Color = lightredBrush, Type = BallType.Color, Center = new Vector(120, 138) },
+                new Ball { Sphere = sb.addBall(186, 203, 0, 0), Color = lightpurpleBrush, Type = BallType.Color, Center = new Vector(186, 203) },
+                new Ball { Sphere = sb.addBall(120, 190, 0, 0), Color = lightorangeBrush, Type = BallType.Color, Center = new Vector(120, 190) },
+                new Ball { Sphere = sb.addBall(142, 229, 0, 0), Color = lightgreenBrush, Type = BallType.Color, Center = new Vector(142, 229) },
+                new Ball { Sphere = sb.addBall(164, 164, 0, 0), Color = lightbrownBrush, Type = BallType.Color, Center = new Vector(164, 164) },
             };
         }
 
@@ -271,8 +267,10 @@ namespace Bilard2
                     var cueRotationRadians = cueRotation * Math.PI / 180.0f;
 
                     tableState = TableState.BallsMoving;
-                    whiteBall.Sphere.VX = 20 * cuePower * cuePower * -Math.Cos(cueRotationRadians);
-                    whiteBall.Sphere.VY = 20 * cuePower * cuePower * -Math.Sin(cueRotationRadians);
+                    var vx = 1800 * cuePower * cuePower * -Math.Cos(cueRotationRadians);
+                    var vy = 1800 * cuePower * cuePower * -Math.Sin(cueRotationRadians);
+
+                    whiteBall.Velocity = new Vector(vx, vy);
                 }
 
                 cueDistanceFromWhiteBall -= CueReturnDistanceInTick * cuePower * cuePower;
@@ -280,8 +278,7 @@ namespace Bilard2
 
             if(tableState == TableState.BallsMoving)
             {
-                sb.fromTheWalls(TableX + TableEdgeWidth, TableY + TableEdgeWidth, TableW - 2 * TableEdgeWidth, TableH - 2 * TableEdgeWidth);
-                sb.Collission();
+                simulationBox.UpdateSimulation(TimerIntervalSeconds);
 
                 foreach(var ball in balls)
                 {
@@ -300,29 +297,37 @@ namespace Bilard2
                         {
                             ball.IsVisible = false;
                             sb.removeBall(ball.Sphere);
-                            ball.Sphere.VX = 0;
-                            ball.Sphere.VY = 0;
+                            ball.Velocity = new Vector(0, 0);
                             scores.AddScore(watch.Elapsed, ball.Color);
+
+                            if(ball.Type == BallType.Black)
+                            {
+                                if(balls.Where(b => b.Type != BallType.White).All(b => !b.IsVisible))
+                                {
+                                    GameOver(true);
+                                }
+                                else
+                                {
+                                    GameOver(false);
+                                }
+                            }
                         }
                     }
 
                     // aktualizacja pozycji
-                    ball.Sphere.X += ball.Sphere.VX * TimerIntervalSeconds;
-                    ball.Sphere.Y += ball.Sphere.VY * TimerIntervalSeconds;
+                    ball.Center += ball.Velocity * TimerIntervalSeconds;
 
                     // tarcie
-                    ball.Sphere.VX *= 0.98;
-                    ball.Sphere.VY *= 0.98;
+                    ball.Velocity *= 0.985;
                 }
 
-                if(balls.All(ball => Math.Abs(ball.Sphere.VX) < 0.15 && Math.Abs(ball.Sphere.VY) < 0.15))
+                if(balls.All(ball => ball.Velocity.Length < 5))
                 {
                     tableState = TableState.None;
 
                     foreach(var ball in balls)
                     {
-                        ball.Sphere.VX = 0;
-                        ball.Sphere.VY = 0;
+                        ball.Velocity = new Vector(0, 0);
                     }
                 }
                 // aktualizacja fizyki bil
@@ -332,10 +337,33 @@ namespace Bilard2
         private void RestartWhiteBall()
         {
             var whiteBall = GetWhiteBall();
-            whiteBall.Sphere.X = 550;
-            whiteBall.Sphere.Y = 190;
-            whiteBall.Sphere.VX = 0;
-            whiteBall.Sphere.VY = 0;
+            whiteBall.Center = new Vector(550, 190);
+            whiteBall.Velocity = new Vector(0, 0);
+        }
+
+        private void GameOver(bool isWin)
+        {
+            watch.Stop();
+
+            if(isWin)
+            {
+                tableState = TableState.GameWon;
+            }
+            else
+            {
+                tableState = TableState.GameLost;
+            }
+        }
+
+        private void RestartGame()
+        {
+            balls = CreateBalls();
+            table = CreateTable();
+            time = TimeSpan.Zero;
+            watch = new Stopwatch();
+            scores = new Scores();
+            simulationBox = new SimulationBox(table, balls);
+            tableState = TableState.None;
         }
 
         enum TableState
@@ -343,7 +371,9 @@ namespace Bilard2
             None,
             CueMoving,
             CueReleased,
-            BallsMoving
+            BallsMoving,
+            GameLost,
+            GameWon
         }
     }
 }

@@ -1,115 +1,182 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Windows;
 
 namespace Bilard2
 {
     public class SimulationBox
     {
+        private readonly Ball[] balls;
+        private readonly Table table;
 
-        public const int radius = 12;
-
-        List<Sphere> ballList = new List<Sphere>();
-
-        public Sphere addBall(int X, int Y, int VX, int VY)
+        public SimulationBox(Table table, Ball[] balls)
         {
-            Sphere b = new Sphere()
-            {
-                X = X,
-                Y = Y,
-                VX = VX,
-                VY = VY,
-                R = radius,
-                Mass = 1
-            };
-            ballList.Add(b);
-            return b;
+            this.table = table;
+            this.balls = balls;
         }
 
-        public void removeBall(Sphere sphere)
+        public void UpdateSimulation(double dt)
         {
-            balls.Remove(sphere);
-        }
+            var activeBalls = balls.Where(b => b.IsVisible).ToList();
 
-        public void fromTheWalls(int tableX, int tableY, int tableW, int tableH)
-        {
-            foreach (var b in ballList)
+            while(true)
             {
-                if (b.X < tableX || b.X + b.D > tableW + tableX)
+                var collisions = false;
+
+                foreach(var ball in activeBalls)
                 {
-                    b.VX = -b.VX;
-                }
-                if (b.Y < tableY || b.Y + b.D > tableH + tableY)
-                {
-                    b.VY = -b.VY;
-                }
-
-                b.X = b.X + b.VX;
-                b.Y = b.Y + b.VY;
-
-            }
-        }
-
-
-
-       public void Collission()
-        {
-            for (int i = 0; i < ballList.Count(); i++)
-            {
-                for (int j = i + 1; j < ballList.Count(); j++)
-                {
-                    var b1 = ballList[i];
-                    var b2 = ballList[j];
-
-                    if (Math.Sqrt(Math.Pow(b1.X - b2.X, 2) + Math.Pow(b1.Y - b2.Y, 2)) - (b1.R + b2.R) < 0)
+                    if(HandleCollisionsWithWalls(ball))
                     {
-
-                        // http://www.gamasutra.com/view/feature/131424/pool_hall_lessons_fast_accurate_.php?page=3
-
-                        Vector pos1 = new Vector(b1.X, b1.Y);
-                        Vector pos2 = new Vector(b2.X, b2.Y);
-
-                        Vector N = pos1 - pos2;
-                        N.Normalize();
-
-                        Vector v1 = new Vector(b1.VX, b1.VY);
-                        Vector v2 = new Vector(b2.VX, b2.VY);
-
-                        // a1 =  v1 . N
-                        double a1 = Vector.Multiply(v1, N);
-
-                        // a2 = v2 . N
-                        double a2 = Vector.Multiply(v2, N);
-
-                        double m1 = b1.Mass;
-                        double m2 = b2.Mass;
-
-                        double p = 2 * (a1 - a2) / (m1 + m2);
-
-                        Vector newV1 = v1 - p * m2 * N;
-                        Vector newV2 = v2 + p * m1 * N;
-
-                        b1.VX = newV1.X;
-                        b1.VY = newV1.Y;
-                        b2.VX = newV2.X;
-                        b2.VY = newV2.Y;
+                        collisions = true;
                     }
                 }
+
+                for(int i = 0; i < activeBalls.Count; i++)
+                {
+                    for(int j = i + 1; j < activeBalls.Count; j++)
+                    {
+                        if(HandleBallsCollision(activeBalls[i], activeBalls[j], dt))
+                        {
+                            collisions = true;
+                        }
+                    }
+                }
+
+                if(!collisions)
+                {
+                    break;
+                }
             }
         }
 
-        public List<Sphere> balls
+        private bool HandleCollisionsWithWalls(Ball ball)
         {
-            get
+            if(ball.Center.X - ball.R < table.X + table.Edge)
             {
-                return ballList;
+                ball.Velocity = new Vector(-ball.Velocity.X, ball.Velocity.Y);
+                ball.Center = new Vector(table.X + table.Edge + ball.R, ball.Center.Y);
+                return true;
             }
+
+            if(ball.Center.X + ball.R > table.X + table.W - table.Edge)
+            {
+                ball.Velocity = new Vector(-ball.Velocity.X, ball.Velocity.Y);
+                ball.Center = new Vector(table.X + table.W - table.Edge - ball.R, ball.Center.Y);
+                return true;
+            }
+
+            if (ball.Center.Y - ball.R < table.Y + table.Edge)
+            {
+                ball.Velocity = new Vector(ball.Velocity.X, -ball.Velocity.Y);
+                ball.Center = new Vector(ball.Center.X, table.Y + table.Edge + ball.R);
+                return true;
+            }
+
+            if (ball.Center.Y + ball.R > table.Y + table.H - table.Edge)
+            {
+                ball.Velocity = new Vector(ball.Velocity.X, -ball.Velocity.Y);
+                ball.Center = new Vector(ball.Center.X, table.Y + table.H - table.Edge - ball.R);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool HandleBallsCollision(Ball A, Ball B, double dt)
+        {
+            // jeżeli kule kolidują, t przyjmie wartości od 0..1
+            if(!AreBallsColliding(A, B, dt, out var t))
+            {
+                return false;
+            }
+
+            // kule się zderzą po zaaplikowaniu ich prędkości pomnożonej przez t
+            A.Center += A.Velocity * t * dt;
+            B.Center += B.Velocity * t * dt;
+
+            // reakcja na zderzenie
+            HandleBallsCollisionReaction(A, B);
+
+            // na kule po zderzeniu należy jeszcze zaaplikować nową prędkość pomnożoną przez (1 - t)
+            A.Center += A.Velocity * (1.0 - t) * dt;
+            B.Center += B.Velocity * (1.0 - t) * dt;
+            return true;
+        }
+        
+        private bool AreBallsColliding(Ball A, Ball B, double dt, out double t)
+        {
+            // http://www.gamasutra.com/view/feature/131424/pool_hall_lessons_fast_accurate_.php?page=2
+            var V = (A.Velocity - B.Velocity) * dt;
+            var radiusSum = B.R + A.R;
+            var ballsDistance = (B.Center - A.Center).Length - radiusSum;
+            t = 0;
+
+            // kule są zbyt odległe by mogły ze sobą kolidować
+            if(V.Length < ballsDistance)
+            {
+                return false;
+            }
+
+            var N = V; N.Normalize();
+
+            var C = B.Center - A.Center;
+            var D = Vector.Multiply(N, C);
+
+            // kula A nie porusza się w stronę kuli B
+            if(D <= 0)
+            {
+                return false;
+            }
+
+            var F = C.LengthSquared - D * D;
+            var radiusSumSquared = radiusSum * radiusSum;
+
+            if (F >= radiusSumSquared)
+            {
+                return false;
+            }
+
+            var T = radiusSumSquared - F;
+
+            if(T < 0)
+            {
+                return false;
+            }
+
+            var distance = D - Math.Sqrt(T);
+            
+            if(V.Length < distance)
+            {
+                return false;
+            }
+
+            t = (N * distance).Length / V.Length;
+            return true;
+        }
+
+        private void HandleBallsCollisionReaction(Ball A, Ball B)
+        {
+            var N = A.Center - B.Center;
+            N.Normalize();
+
+            var v1 = A.Velocity;
+            var v2 = B.Velocity;
+
+            // a1 =  v1 . N
+            var a1 = Vector.Multiply(v1, N);
+
+            // a2 = v2 . N
+            var a2 = Vector.Multiply(v2, N);
+
+            var m1 = A.Mass;
+            var m2 = B.Mass;
+            var p = 2 * (a1 - a2) / (m1 + m2);
+
+            var newV1 = v1 - p * m2 * N;
+            var newV2 = v2 + p * m1 * N;
+
+            A.Velocity = newV1;
+            B.Velocity = newV2;
         }
     }
 }
